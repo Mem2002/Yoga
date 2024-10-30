@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,6 +20,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 
 public class MainClassActivity extends AppCompatActivity {
+    private static final int ADD_CLASS_REQUEST = 1; // Mã yêu cầu để xác định Activity
     RecyclerView recyclerViewClass;
     FloatingActionButton add_class_detail_button;
     MyDatabaseHelper myDB;
@@ -41,7 +43,7 @@ public class MainClassActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainClassActivity.this, AddClassActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, ADD_CLASS_REQUEST); // Gọi startActivityForResult
             }
         });
 
@@ -55,6 +57,34 @@ public class MainClassActivity extends AppCompatActivity {
         storeDataInArray();
         setupRecyclerView();
         setupSearchView(); // Thiết lập SearchView
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ADD_CLASS_REQUEST && resultCode == RESULT_OK) {
+            // Khi nhận kết quả từ AddClassActivity
+            class_id.clear();
+            class_date.clear();
+            class_teacher.clear();
+            class_typeclass.clear();
+            class_comment.clear();
+            storeDataInArray(); // Tải lại dữ liệu
+            classAdapter.notifyDataSetChanged(); // Cập nhật Adapter
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Tải lại dữ liệu khi activity được hiển thị lại
+        class_id.clear();
+        class_date.clear();
+        class_teacher.clear();
+        class_typeclass.clear();
+        class_comment.clear();
+        storeDataInArray(); // Tải lại dữ liệu
+        classAdapter.notifyDataSetChanged(); // Cập nhật Adapter
     }
 
     private void setupRecyclerView() {

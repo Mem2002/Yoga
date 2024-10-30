@@ -1,5 +1,6 @@
 package com.example.booklibrary.Class;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -178,13 +179,11 @@ void updateClassData() {
 
     void deleteClassData() {
         try {
-            // Lấy thông tin lớp theo ID
             MyDatabaseHelper.ClassInstance classInstance = myDB.getClassInstanceById(Integer.parseInt(id));
 
             if (classInstance != null) {
                 String firestoreId = classInstance.getFirestoreId(); // Giả định bạn đã có phương thức này
 
-                // Log firestore_id để kiểm tra
                 Log.d("DeleteClassActivity", "Firestore ID: " + firestoreId);
 
                 // Xóa tài liệu từ Firestore
@@ -194,7 +193,13 @@ void updateClassData() {
                         .addOnSuccessListener(aVoid -> {
                             // Sau khi xóa thành công trong Firestore, xóa trong SQLite
                             myDB.deleteClassInstance(Integer.parseInt(id));
-                            finish(); // Kết thúc Activity và trở về Activity trước đó
+                            Toast.makeText(this, "Class deleted successfully", Toast.LENGTH_SHORT).show();
+
+                            // Quay lại MainClassActivity và cập nhật dữ liệu
+                            Intent intent = new Intent(UpdateClassActivity.this, MainClassActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                            finish();
                         })
                         .addOnFailureListener(e -> {
                             Toast.makeText(this, "Failed to delete from Firestore", Toast.LENGTH_SHORT).show();

@@ -52,12 +52,11 @@ public class AddClassActivity extends AppCompatActivity {
 
             // Thêm lớp vào cơ sở dữ liệu
             myDB.addClassInstance(date, teacher, comments, typeOfClass);
+            Log.d("AddClassActivity", "Class added: Date=" + date + ", Teacher=" + teacher);
 
-            // Log thông báo về việc thêm lớp
-            Log.d("AddClassActivity", "Attempting to add class: Date=" + date + ", Teacher=" + teacher);
-
-            // Xóa các trường nhập liệu
-            clearInputFields();
+            // Thiết lập kết quả và quay lại MainActivity
+            setResult(RESULT_OK);
+            finish(); // Đóng activity
         });
     }
 
