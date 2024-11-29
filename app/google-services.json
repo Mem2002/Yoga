@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "878504813821",
+    "project_id": "java-ffd1a",
+    "storage_bucket": "java-ffd1a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:878504813821:android:33de428c97990483ceca94",
+        "android_client_info": {
+          "package_name": "com.example.booklibrary"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACFTk8w8EuuIVQAOe9zVF-gS7jEff57mo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
