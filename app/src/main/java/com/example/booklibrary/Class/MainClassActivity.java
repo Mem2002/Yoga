@@ -20,7 +20,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 
 public class MainClassActivity extends AppCompatActivity {
-    private static final int ADD_CLASS_REQUEST = 1; // Mã yêu cầu để xác định Activity
+    private static final int ADD_CLASS_REQUEST = 1;
     RecyclerView recyclerViewClass;
     FloatingActionButton add_class_detail_button;
     MyDatabaseHelper myDB;
@@ -36,14 +36,13 @@ public class MainClassActivity extends AppCompatActivity {
 
         // Khởi tạo RecyclerView và SearchView
         recyclerViewClass = findViewById(R.id.myRecyclerViewClass);
-        searchView = findViewById(R.id.search_teacher); // Đảm bảo ID này chính xác trong layout
-
+        searchView = findViewById(R.id.search_teacher);
         add_class_detail_button = findViewById(R.id.add_class_detail_button);
         add_class_detail_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainClassActivity.this, AddClassActivity.class);
-                startActivityForResult(intent, ADD_CLASS_REQUEST); // Gọi startActivityForResult
+                startActivityForResult(intent, ADD_CLASS_REQUEST);
             }
         });
 
@@ -56,7 +55,7 @@ public class MainClassActivity extends AppCompatActivity {
 
         storeDataInArray();
         setupRecyclerView();
-        setupSearchView(); // Thiết lập SearchView
+        setupSearchView();
     }
 
     @Override
@@ -69,22 +68,22 @@ public class MainClassActivity extends AppCompatActivity {
             class_teacher.clear();
             class_typeclass.clear();
             class_comment.clear();
-            storeDataInArray(); // Tải lại dữ liệu
-            classAdapter.notifyDataSetChanged(); // Cập nhật Adapter
+            storeDataInArray();
+            classAdapter.notifyDataSetChanged();
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Tải lại dữ liệu khi activity được hiển thị lại
+
         class_id.clear();
         class_date.clear();
         class_teacher.clear();
         class_typeclass.clear();
         class_comment.clear();
-        storeDataInArray(); // Tải lại dữ liệu
-        classAdapter.notifyDataSetChanged(); // Cập nhật Adapter
+        storeDataInArray();
+        classAdapter.notifyDataSetChanged();
     }
 
     private void setupRecyclerView() {
@@ -106,14 +105,14 @@ public class MainClassActivity extends AppCompatActivity {
                 class_comment.add(cursor.getString(4));
             }
         }
-        cursor.close(); // Đảm bảo đóng cursor để tránh rò rỉ bộ nhớ
+        cursor.close();
     }
 
     private void setupSearchView() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                return false; // Không làm gì khi nhấn Enter
+                return false;
             }
 
             @Override
@@ -125,7 +124,7 @@ public class MainClassActivity extends AppCompatActivity {
     }
 
     private void filterData(String query) {
-        Cursor cursor = myDB.searchTeacher(query); // Gọi hàm tìm kiếm từ MyDatabaseHelper
+        Cursor cursor = myDB.searchTeacher(query);
         class_id.clear();
         class_date.clear();
         class_teacher.clear();
@@ -143,7 +142,7 @@ public class MainClassActivity extends AppCompatActivity {
                 class_comment.add(cursor.getString(4));
             }
         }
-        classAdapter.notifyDataSetChanged(); // Cập nhật Adapter
-        cursor.close(); // Đóng cursor
+        classAdapter.notifyDataSetChanged();
+        cursor.close();
     }
 }

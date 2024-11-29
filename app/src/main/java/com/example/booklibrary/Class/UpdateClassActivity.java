@@ -11,6 +11,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog; // Thêm import cho AlertDialog
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.booklibrary.MyDatabaseHelper;
@@ -24,7 +25,7 @@ import java.util.Map;
 public class UpdateClassActivity extends AppCompatActivity {
     EditText date_input, teacher_input, comment_input;
     Spinner typeclass_input;
-    Button update_class_button, delete_class_button; // Thêm nút xóa
+    Button update_class_button, delete_class_button;
     String id, date, teacher, typeclass, comment;
     MyDatabaseHelper myDB;
 
@@ -39,23 +40,28 @@ public class UpdateClassActivity extends AppCompatActivity {
         typeclass_input = findViewById(R.id.typeOfClassSpinner2);
         comment_input = findViewById(R.id.comments_class_input2);
         update_class_button = findViewById(R.id.update_class_button);
-        delete_class_button = findViewById(R.id.delete_class_button); // Khởi tạo nút xóa
+        delete_class_button = findViewById(R.id.delete_class_button);
         myDB = new MyDatabaseHelper(UpdateClassActivity.this);
 
-        // Thiết lập Spinner với dữ liệu từ cơ sở dữ liệu
         setUpSpinner();
 
         update_class_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateClassData(); // Kích hoạt cập nhật khi nút được nhấn
+                updateClassData();
             }
         });
 
         delete_class_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                deleteClassData(); // Kích hoạt xóa khi nút được nhấn
+
+                new AlertDialog.Builder(UpdateClassActivity.this)
+                        .setTitle("Confirm deletion")
+                        .setMessage("Are you sure you want to delete this class?")
+                        .setPositiveButton("Yes", (dialog, which) -> deleteClassData())
+                        .setNegativeButton("No", null)
+                        .show();
             }
         });
 
@@ -63,7 +69,7 @@ public class UpdateClassActivity extends AppCompatActivity {
     }
 
     void setUpSpinner() {
-        ArrayList<String> classTypes = myDB.getAllClassTypes(); // Lấy dữ liệu từ DB
+        ArrayList<String> classTypes = myDB.getAllClassTypes();
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, classTypes);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -79,12 +85,10 @@ public class UpdateClassActivity extends AppCompatActivity {
             typeclass = getIntent().getStringExtra("typeclass");
             comment = getIntent().getStringExtra("comment");
 
-            // Setting Intent Data
             date_input.setText(date);
             teacher_input.setText(teacher);
             comment_input.setText(comment);
 
-            // Thiết lập vị trí Spinner
             ArrayAdapter<String> adapter = (ArrayAdapter<String>) typeclass_input.getAdapter();
             int spinnerPosition = adapter.getPosition(typeclass);
             if (spinnerPosition >= 0) {
@@ -97,105 +101,68 @@ public class UpdateClassActivity extends AppCompatActivity {
         }
     }
 
-//    void updateClassData() {
-//        date = date_input.getText().toString().trim();
-//        teacher = teacher_input.getText().toString().trim();
-//        typeclass = typeclass_input.getSelectedItem().toString();
-//        comment = comment_input.getText().toString().trim();
-//
-//        if (date.isEmpty() || teacher.isEmpty() || comment.isEmpty()) {
-//            Toast.makeText(this, "Please fill out all fields", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//
-//        try {
-//            myDB.updateClassInstance(Integer.parseInt(id), date, teacher, comment, typeclass);
-//            Toast.makeText(this, "Class updated successfully", Toast.LENGTH_SHORT).show();
-//            finish();
-//        } catch (NumberFormatException e) {
-//            Toast.makeText(this, "Invalid ID format", Toast.LENGTH_SHORT).show();
-//            Log.e("UpdateClassActivity", "Error parsing ID: " + id, e);
-//        }
-//    }
-void updateClassData() {
-    date = date_input.getText().toString().trim();
-    teacher = teacher_input.getText().toString().trim();
-    typeclass = typeclass_input.getSelectedItem().toString();
-    comment = comment_input.getText().toString().trim();
+    void updateClassData() {
+        date = date_input.getText().toString().trim();
+        teacher = teacher_input.getText().toString().trim();
+        typeclass = typeclass_input.getSelectedItem().toString();
+        comment = comment_input.getText().toString().trim();
 
-    if (date.isEmpty() || teacher.isEmpty() || comment.isEmpty()) {
-        Toast.makeText(this, "Please fill out all fields", Toast.LENGTH_SHORT).show();
-        return;
-    }
-
-    try {
-        // Lấy thông tin lớp theo ID
-        MyDatabaseHelper.ClassInstance classInstance = myDB.getClassInstanceById(Integer.parseInt(id));
-
-        if (classInstance != null) {
-            String firestoreId = classInstance.getFirestoreId(); // Giả định bạn đã có phương thức này
-            Log.d("EditClassActivity", "Firestore ID: " + firestoreId);
-
-
-            // Cập nhật dữ liệu trong SQLite
-            myDB.updateClassInstance(Integer.parseInt(id), date, teacher, comment, typeclass);
-            Toast.makeText(this, "Class updated successfully in SQLite", Toast.LENGTH_SHORT).show();
-
-            // Cập nhật Firestore
-            FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-            Map<String, Object> updatedData = new HashMap<>();
-            updatedData.put("date", date);
-            updatedData.put("teacher", teacher);
-            updatedData.put("comments", comment);
-            updatedData.put("yoga_typeOfClass", typeclass);
-
-            firestore.collection("class_schedule").document(firestoreId)
-                    .update(updatedData)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, "Class updated successfully in Firestore", Toast.LENGTH_SHORT).show();
-                        finish();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Failed to update class in Firestore", Toast.LENGTH_SHORT).show();
-                        Log.e("UpdateClassActivity", "Error updating Firestore document", e);
-                    });
-        } else {
-            Toast.makeText(this, "Class instance not found", Toast.LENGTH_SHORT).show();
+        if (date.isEmpty() || teacher.isEmpty() || comment.isEmpty()) {
+            Toast.makeText(this, "Please fill out all fields", Toast.LENGTH_SHORT).show();
+            return;
         }
-    } catch (NumberFormatException e) {
-        Toast.makeText(this, "Invalid ID format", Toast.LENGTH_SHORT).show();
-        Log.e("UpdateClassActivity", "Error parsing ID: " + id, e);
+
+        try {
+            MyDatabaseHelper.ClassInstance classInstance = myDB.getClassInstanceById(Integer.parseInt(id));
+
+            if (classInstance != null) {
+                String firestoreId = classInstance.getFirestoreId();
+                Log.d("EditClassActivity", "Firestore ID: " + firestoreId);
+
+                myDB.updateClassInstance(Integer.parseInt(id), date, teacher, comment, typeclass);
+                Toast.makeText(this, "Class updated successfully in SQLite", Toast.LENGTH_SHORT).show();
+
+                FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+                Map<String, Object> updatedData = new HashMap<>();
+                updatedData.put("date", date);
+                updatedData.put("teacher", teacher);
+                updatedData.put("comments", comment);
+                updatedData.put("yoga_typeOfClass", typeclass);
+
+                firestore.collection("class_schedule").document(firestoreId)
+                        .update(updatedData)
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(this, "Class updated successfully in Firestore", Toast.LENGTH_SHORT).show();
+                            finish();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(this, "Failed to update class in Firestore", Toast.LENGTH_SHORT).show();
+                            Log.e("UpdateClassActivity", "Error updating Firestore document", e);
+                        });
+            } else {
+                Toast.makeText(this, "Class instance not found", Toast.LENGTH_SHORT).show();
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Invalid ID format", Toast.LENGTH_SHORT).show();
+            Log.e("UpdateClassActivity", "Error parsing ID: " + id, e);
+        }
     }
-}
-//    void deleteClassData() {
-//        try {
-//            myDB.deleteClassInstance(Integer.parseInt(id));
-//            finish(); // Kết thúc Activity và trở về Activity trước đó
-//        } catch (NumberFormatException e) {
-//            Toast.makeText(this, "Invalid ID format", Toast.LENGTH_SHORT).show();
-//            Log.e("UpdateClassActivity", "Error parsing ID: " + id, e);
-//        }
-//    }
 
     void deleteClassData() {
         try {
             MyDatabaseHelper.ClassInstance classInstance = myDB.getClassInstanceById(Integer.parseInt(id));
 
             if (classInstance != null) {
-                String firestoreId = classInstance.getFirestoreId(); // Giả định bạn đã có phương thức này
-
+                String firestoreId = classInstance.getFirestoreId();
                 Log.d("DeleteClassActivity", "Firestore ID: " + firestoreId);
 
-                // Xóa tài liệu từ Firestore
                 FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                 firestore.collection("class_schedule").document(firestoreId)
                         .delete()
                         .addOnSuccessListener(aVoid -> {
-                            // Sau khi xóa thành công trong Firestore, xóa trong SQLite
                             myDB.deleteClassInstance(Integer.parseInt(id));
                             Toast.makeText(this, "Class deleted successfully", Toast.LENGTH_SHORT).show();
 
-                            // Quay lại MainClassActivity và cập nhật dữ liệu
                             Intent intent = new Intent(UpdateClassActivity.this, MainClassActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);

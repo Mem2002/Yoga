@@ -28,7 +28,7 @@ public class AddClassActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_class);
 
-        // Khởi tạo các thành phần
+
         dateClassInput = findViewById(R.id.date_class_input);
         teacherClassInput = findViewById(R.id.teacher_class_input);
         typeOfClassSpinner = findViewById(R.id.typeOfClassSpinner);
@@ -44,19 +44,19 @@ public class AddClassActivity extends AppCompatActivity {
             String typeOfClass = (String) typeOfClassSpinner.getSelectedItem();
             String comments = commentsClassInput.getText().toString().trim();
 
-            // Kiểm tra dữ liệu
+
             if (date.isEmpty() || teacher.isEmpty()) {
                 Toast.makeText(AddClassActivity.this, "Date and Teacher fields are required", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Thêm lớp vào cơ sở dữ liệu
+
             myDB.addClassInstance(date, teacher, comments, typeOfClass);
             Log.d("AddClassActivity", "Class added: Date=" + date + ", Teacher=" + teacher);
 
-            // Thiết lập kết quả và quay lại MainActivity
+
             setResult(RESULT_OK);
-            finish(); // Đóng activity
+            finish();
         });
     }
 
